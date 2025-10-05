@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CP ARENA - Retro Coding Battleground</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+</head>
+<body>
+    <!-- Scan Lines Overlay -->
+    <div class="scan-lines"></div>
+    
+    <!-- Main Arena Container -->
+    <div class="arena-container">
+        
+        <!-- Top Header - Arcade Dashboard -->
+        <header class="arcade-header">
+            <div class="header-left">
+                <h1 class="arena-title">CP ARENA</h1>
+                <div class="subtitle">RETRO CODING BATTLEGROUND</div>
+            </div>
+            
+            <div class="header-center">
+                <div class="leaderboard-ticker">
+                    <div class="ticker-content" id="leaderboard-ticker">
+                        <span class="rank-item">#1 CodeMaster2025 - 95,420 pts</span>
+                        <span class="rank-item">#2 AlgoWizard - 87,350 pts</span>
+                        <span class="rank-item">#3 ByteNinja - 81,200 pts</span>
+                        <span class="rank-item">#4 StackOverflow - 76,890 pts</span>
+                        <span class="rank-item">#5 RecursiveRider - 72,100 pts</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="player-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">LEVEL</span>
+                        <span class="stat-value" id="player-level">1</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">SCORE</span>
+                        <span class="stat-value" id="player-score">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">RANK</span>
+                        <span class="rank-badge" id="player-rank">BRONZE</span>
+                    </div>
+                </div>
+                <div class="xp-bar-container">
+                    <div class="xp-label">XP PROGRESS</div>
+                    <div class="xp-bar">
+                        <div class="xp-fill" id="xp-fill" style="width: 0%"></div>
+                        <div class="xp-text"><span id="current-xp">0</span> / <span id="next-level-xp">1000</span></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Gaming Area -->
+        <main class="gaming-area">
+            
+            <!-- Input Terminal (Left) -->
+            <section class="terminal-section input-terminal">
+                <div class="terminal-header">
+                    <div class="terminal-title">
+                        <span class="terminal-icon">📟</span>
+                        INPUT TERMINAL
+                    </div>
+                    <div class="terminal-controls">
+                        <div class="control-lights">
+                            <span class="light green"></span>
+                            <span class="light yellow"></span>
+                            <span class="light red"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="terminal-body">
+                    <div class="terminal-prompt">$ cat input.txt</div>
+                    <textarea id="input" class="terminal-textarea" placeholder="Enter test data...">3
+5
+10
+15</textarea>
+                </div>
+                <div class="arcade-buttons">
+                    <button class="arcade-btn download-btn" onclick="downloadInput()">
+                        <span class="btn-glow"></span>
+                        DOWNLOAD
+                    </button>
+                    <button class="arcade-btn execute-btn" onclick="runCode()">
+                        <span class="btn-glow"></span>
+                        EXECUTE
+                    </button>
+                    <button class="arcade-btn reset-btn" onclick="resetInput()">
+                        <span class="btn-glow"></span>
+                        RESET
+                    </button>
+                </div>
+            </section>
+
+            <!-- Code Editor (Center) -->
+            <section class="terminal-section code-terminal">
+                <div class="terminal-header">
+                    <div class="terminal-title">
+                        <span class="terminal-icon">💻</span>
+                        CODE MATRIX
+                    </div>
+                    <div class="environment-switches">
+                        <div class="switch-container">
+                            <button class="env-switch active" data-env="nodejs">NODE.JS</button>
+                            <button class="env-switch" data-env="javascript">JAVASCRIPT</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="terminal-body code-body">
+                    <div class="code-editor-container">
+                        <div class="line-numbers" id="line-numbers"></div>
+                        <textarea id="code-editor" class="code-textarea" spellcheck="false"></textarea>
+                        <pre id="code-highlight" class="code-highlight"><code class="language-javascript"></code></pre>
+                    </div>
+                </div>
+                <div class="arcade-buttons">
+                    <button class="arcade-btn download-btn" onclick="downloadCode()">
+                        <span class="btn-glow"></span>
+                        DOWNLOAD
+                    </button>
+                    <button class="arcade-btn execute-btn" onclick="runCode()">
+                        <span class="btn-glow"></span>
+                        EXECUTE
+                    </button>
+                    <button class="arcade-btn reset-btn" onclick="resetCode()">
+                        <span class="btn-glow"></span>
+                        RESET
+                    </button>
+                </div>
+            </section>
+
+            <!-- Output Console (Right) -->
+            <section class="terminal-section output-terminal">
+                <div class="terminal-header">
+                    <div class="terminal-title">
+                        <span class="terminal-icon">📺</span>
+                        OUTPUT CONSOLE
+                    </div>
+                    <div class="terminal-controls">
+                        <div class="performance-stats" id="performance-stats">
+                            <span class="perf-item">TIME: <span id="exec-time">0ms</span></span>
+                            <span class="perf-item">SCORE: <span id="run-score">0</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="terminal-body">
+                    <div class="terminal-prompt">$ ./solution.out</div>
+                    <textarea id="output" class="terminal-textarea" readonly placeholder="Output will appear here..."></textarea>
+                </div>
+                <div class="arcade-buttons">
+                    <button class="arcade-btn download-btn" onclick="downloadOutput()">
+                        <span class="btn-glow"></span>
+                        DOWNLOAD
+                    </button>
+                    <button class="arcade-btn execute-btn" onclick="runCode()">
+                        <span class="btn-glow"></span>
+                        EXECUTE
+                    </button>
+                    <button class="arcade-btn reset-btn" onclick="resetOutput()">
+                        <span class="btn-glow"></span>
+                        RESET
+                    </button>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Control Panel -->
+        <footer class="control-panel">
+            <div class="panel-section challenges">
+                <h3 class="panel-title">CHALLENGE MODES</h3>
+                <div class="challenge-buttons">
+                    <button class="challenge-btn active" data-challenge="daily">DAILY</button>
+                    <button class="challenge-btn" data-challenge="speed">SPEED</button>
+                    <button class="challenge-btn" data-challenge="tournament">TOURNAMENT</button>
+                    <button class="challenge-btn" data-challenge="survival">SURVIVAL</button>
+                </div>
+            </div>
+            
+            <div class="panel-section timer">
+                <h3 class="panel-title">MISSION TIMER</h3>
+                <div class="timer-display" id="timer-display">00:00:00</div>
+                <div class="timer-controls">
+                    <button class="timer-btn" onclick="startTimer()">START</button>
+                    <button class="timer-btn" onclick="stopTimer()">STOP</button>
+                    <button class="timer-btn" onclick="resetTimer()">RESET</button>
+                </div>
+            </div>
+            
+            <div class="panel-section achievements">
+                <h3 class="panel-title">ACHIEVEMENTS</h3>
+                <div class="achievement-display" id="achievement-display">
+                    <button class="achievement-btn" onclick="showAchievements()">VIEW ALL</button>
+                    <div class="recent-achievement" id="recent-achievement">
+                        Ready to earn your first achievement!
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Achievement Modal -->
+    <div id="achievement-modal" class="modal achievement-modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏆 ACHIEVEMENTS UNLOCKED 🏆</h2>
+                <button class="close-btn" onclick="closeAchievements()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="achievements-grid" id="achievements-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Up Modal -->
+    <div id="levelup-modal" class="modal levelup-modal hidden">
+        <div class="modal-content">
+            <div class="levelup-animation">
+                <h1 class="levelup-text">LEVEL UP!</h1>
+                <div class="levelup-details">
+                    <div class="new-level">LEVEL <span id="new-level">2</span></div>
+                    <div class="levelup-bonuses">
+                        <div class="bonus-item">+500 XP Bonus</div>
+                        <div class="bonus-item">New Features Unlocked</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
