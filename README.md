@@ -24,7 +24,7 @@ This project transforms your standard code editor into an immersive, gamified ar
 ## 🕹️ User Flow
 
 1. Enter the arena and see your stats in a glowing dashboard.
-2. Choose your environment (Node.js or JavaScript).
+2. Choose your environment (Node.js).
 3. Input test data in vintage terminal style.
 4. Write or modify code with neon syntax highlighting.
 5. Click **Run** to execute and view results.
