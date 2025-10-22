@@ -6,24 +6,28 @@ class NodeJSCodeEditor {
         this.isExecuting = false;
         this.outputLineCount = 0;
         this.maxOutputLines = 1000;
+        this.currentTheme = 'dark';
+        this.uploadedFileName = null;
         
-        this.defaultCode = `// Node.js Code Editor
-// Write your Node.js code here
-
-// Example: Process array of numbers
-function processArray(arr) {
-    return arr.map(num => num * 2);
+        this.defaultCode = `// Elegant Node.js Dashboard
+function sumNumbers(arr) {
+  return arr.reduce((a,b) => a+b,0);
 }
 
-// Read input (simulated stdin)
-const input = "1 2 3 4 5";
-const numbers = input.split(' ').map(Number);
+// Read input from input panel
+const inputText = "4 5 6 7"; // This will use textarea or file upload
+const numbers = inputText.split(' ').map(Number);
 
-// Process and display output
-const result = processArray(numbers);
-console.log('Input:', numbers);
-console.log('Output:', result);
-console.log('Sum:', result.reduce((a, b) => a + b, 0));`;
+console.log("\ud83d\udce5 Input:", inputText);
+console.log("\ud83d\udcca Numbers:", numbers);
+console.log("\u2728 Sum:", sumNumbers(numbers));
+console.log("\ud83d\ude80 Average:", (sumNumbers(numbers) / numbers.length).toFixed(2));
+
+// Example: Process string data
+if (typeof inputText === 'string' && inputText.includes(' ')) {
+  console.log("\ud83d\udd0d Processing space-separated values...");
+  console.log("\ud83d\udccb Word count:", inputText.split(' ').length);
+}`;
         
         this.init();
     }
@@ -32,6 +36,7 @@ console.log('Sum:', result.reduce((a, b) => a + b, 0));`;
         this.showLoadingModal();
         await this.initMonacoEditor();
         this.initEventListeners();
+        this.initThemeSystem();
         this.hideLoadingModal();
         
         // Set focus to editor
@@ -40,6 +45,22 @@ console.log('Sum:', result.reduce((a, b) => a + b, 0));`;
                 this.editor.focus();
             }
         }, 100);
+    }
+    
+    initThemeSystem() {
+        // Set initial theme
+        this.applyTheme(this.currentTheme);
+    }
+    
+    applyTheme(themeName) {
+        document.documentElement.setAttribute('data-theme', themeName);
+        this.currentTheme = themeName;
+        
+        // Update Monaco editor theme
+        if (this.editor) {
+            const monacoTheme = (themeName === 'light') ? 'vs' : 'vs-dark';
+            monaco.editor.setTheme(monacoTheme);
+        }
     }
 
     showLoadingModal() {
@@ -121,14 +142,30 @@ console.log('Sum:', result.reduce((a, b) => a + b, 0));`;
     initEventListeners() {
         // Button event listeners
         document.getElementById('run-btn').addEventListener('click', () => this.runCode());
-        document.getElementById('clear-output-btn').addEventListener('click', () => this.clearOutput());
         document.getElementById('clear-editor-btn').addEventListener('click', () => this.clearEditor());
-        document.getElementById('download-btn').addEventListener('click', () => this.downloadCode());
+        document.getElementById('download-code-btn').addEventListener('click', () => this.downloadCode());
         document.getElementById('clear-console-btn').addEventListener('click', () => this.clearOutput());
         
+        // New output controls
+        document.getElementById('copy-output-btn').addEventListener('click', () => this.copyOutput());
+        document.getElementById('download-output-btn').addEventListener('click', () => this.downloadOutput());
+        
+        // File upload functionality
+        document.getElementById('upload-btn').addEventListener('click', () => {
+            document.getElementById('file-upload').click();
+        });
+        
+        document.getElementById('file-upload').addEventListener('change', (e) => {
+            this.handleFileUpload(e.target.files[0]);
+        });
+        
+        document.getElementById('clear-file').addEventListener('click', () => {
+            this.clearUploadedFile();
+        });
+        
         // Theme selector
-        document.getElementById('theme-selector').addEventListener('change', (e) => {
-            this.changeEditorTheme(e.target.value);
+        document.getElementById('dashboard-theme').addEventListener('change', (e) => {
+            this.applyTheme(e.target.value);
         });
         
         // Sample input selector
@@ -146,17 +183,114 @@ console.log('Sum:', result.reduce((a, b) => a + b, 0));`;
                 e.preventDefault();
                 this.runCode();
             }
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                this.downloadCode();
+            }
         });
     }
 
-    changeEditorTheme(theme) {
-        if (this.editor) {
-            monaco.editor.setTheme(theme);
+    handleFileUpload(file) {
+        if (!file) return;
+        
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+            this.appendOutput('❌ File too large. Maximum size is 10MB.', 'error');
+            return;
+        }
+        
+        const validTypes = ['text/plain', 'application/json', '.txt', '.json'];
+        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+        
+        if (!validTypes.includes(file.type) && !validTypes.includes(fileExtension)) {
+            this.appendOutput('❌ Invalid file type. Please upload .txt or .json files.', 'error');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = e.target.result;
+            document.getElementById('input-area').value = content;
+            
+            // Show file info
+            this.uploadedFileName = file.name;
+            document.getElementById('file-name').textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(1)}KB)`;
+            document.getElementById('file-info').style.display = 'flex';
+            
+            this.appendOutput(`✅ File uploaded successfully: ${file.name}`, 'success');
+        };
+        
+        reader.onerror = () => {
+            this.appendOutput('❌ Failed to read file. Please try again.', 'error');
+        };
+        
+        reader.readAsText(file);
+    }
+    
+    clearUploadedFile() {
+        document.getElementById('input-area').value = '';
+        document.getElementById('file-info').style.display = 'none';
+        document.getElementById('file-upload').value = '';
+        this.uploadedFileName = null;
+        this.appendOutput('🗑️ File cleared from input.', 'info');
+    }
+    
+    copyOutput() {
+        const outputElement = document.getElementById('output-console');
+        const textContent = outputElement.textContent || outputElement.innerText || '';
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textContent).then(() => {
+                this.appendOutput('📋 Output copied to clipboard!', 'success');
+            }).catch(() => {
+                this.fallbackCopyText(textContent);
+            });
+        } else {
+            this.fallbackCopyText(textContent);
         }
     }
-
-    updateEditorTheme() {
-        // This method can be used to sync theme changes
+    
+    fallbackCopyText(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            this.appendOutput('📋 Output copied to clipboard!', 'success');
+        } catch (err) {
+            this.appendOutput('❌ Failed to copy output. Please select and copy manually.', 'error');
+        }
+        
+        document.body.removeChild(textArea);
+    }
+    
+    downloadOutput() {
+        const outputElement = document.getElementById('output-console');
+        const textContent = outputElement.textContent || outputElement.innerText || '';
+        
+        if (!textContent || textContent.trim().length === 0) {
+            this.appendOutput('❌ No output to download. Run some code first.', 'error');
+            return;
+        }
+        
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const fileName = `nodejs-output-${timestamp}.txt`;
+        
+        const blob = new Blob([textContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        this.appendOutput(`💾 Output saved as: ${fileName}`, 'success');
     }
 
     async runCode() {
@@ -213,8 +347,7 @@ console.log('Sum:', result.reduce((a, b) => a + b, 0));`;
             }, 5000);
 
             try {
-                // Get input from textarea
-                const inputText = document.getElementById('input-area').value || '';
+        
                 
                 // Create sandbox environment
                 const sandbox = this.createNodeJSSandbox(inputText);
@@ -250,6 +383,7 @@ console.log('Sum:', result.reduce((a, b) => a + b, 0));`;
                     clearInterval
                 );
 
+                // Wait a bit for async operations
                 // Wait a bit for async operations
                 setTimeout(() => {
                     resolve();
@@ -426,7 +560,7 @@ console.log('Sum:', result.reduce((a, b) => a + b, 0));`;
         console.innerHTML = `
             <div class="console-welcome">
                 <span class="console-prompt">$</span> Node.js Code Editor Console
-                <div class="console-info">Console cleared. Ready for new output.</div>
+                <div class="console-info">✨ Console cleared. Ready for new output.</div>
             </div>
         `;
         this.outputLineCount = 0;
@@ -434,26 +568,36 @@ console.log('Sum:', result.reduce((a, b) => a + b, 0));`;
     }
 
     clearEditor() {
-        if (confirm('Are you sure you want to clear the editor? This action cannot be undone.')) {
+        if (confirm('🗑️ Are you sure you want to clear the editor? This action cannot be undone.')) {
             this.editor.setValue('');
             this.editor.focus();
+            this.appendOutput('🗑️ Editor cleared successfully.', 'info');
         }
     }
 
     downloadCode() {
         const code = this.editor.getValue();
+        
+        if (!code || code.trim().length === 0) {
+            this.appendOutput('❌ No code to download. Write some code first.', 'error');
+            return;
+        }
+        
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const fileName = `nodejs-code-${timestamp}.js`;
+        
         const blob = new Blob([code], { type: 'text/javascript' });
         const url = URL.createObjectURL(blob);
         
         const a = document.createElement('a');
         a.href = url;
-        a.download = `nodejs-code-${Date.now()}.js`;
+        a.download = fileName;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        this.appendOutput('✅ Code downloaded successfully!', 'success');
+        this.appendOutput(`💾 Code saved as: ${fileName}`, 'success');
     }
 
     setExecutionStatus(type, message) {

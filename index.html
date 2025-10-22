@@ -12,75 +12,102 @@
     <!-- Header Bar -->
     <header class="header">
         <div class="header-content">
-            <h1 class="app-title">Node.js Code Editor</h1>
-            <div class="environment-indicator">
-                <span class="env-icon">⚡</span>
-                <span>Node.js Environment</span>
+            <div class="header-left">
+                <h1 class="app-title">📝 Node.js Code Editor</h1>
+                <div class="environment-indicator">
+                    <span class="env-icon">⚡</span>
+                    <span>Node.js Environment</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="theme-selector-wrapper">
+                    <label for="dashboard-theme" class="theme-label">🎨 Theme:</label>
+                    <select id="dashboard-theme" class="form-control theme-selector">
+                        <option value="light">Light</option>
+                        <option value="dark" selected>Dark</option>
+                        <option value="blue">Blue</option>
+                        <option value="teal">Teal</option>
+                    </select>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- Main Content Area -->
     <main class="main-content">
-        <!-- Left Panel - Code Editor -->
+        <!-- Left Panel - Code Editor (70%) -->
         <section class="editor-panel">
             <div class="panel-header">
-                <span class="panel-title">Code Editor</span>
+                <div class="panel-title-wrapper">
+                    <span class="panel-icon">💻</span>
+                    <span class="panel-title">Code Editor</span>
+                </div>
                 <div class="editor-controls">
-                    <select id="theme-selector" class="form-control">
-                        <option value="vs-dark">Dark Theme</option>
-                        <option value="vs">Light Theme</option>
-                    </select>
+                    <button id="run-btn" class="btn btn--primary">
+                        <span class="btn-icon">▶️</span>
+                        Run Code
+                    </button>
+                    <button id="clear-editor-btn" class="btn btn--secondary btn--sm">🗑️ Clear</button>
+                    <button id="download-code-btn" class="btn btn--outline btn--sm">💾 Save</button>
                 </div>
             </div>
             <div id="monaco-editor" class="monaco-container"></div>
+            <div class="execution-status-bar">
+                <div class="execution-status" id="execution-status">Ready</div>
+                <span id="execution-time" class="execution-time"></span>
+            </div>
         </section>
 
-        <!-- Control Buttons -->
-        <section class="controls-panel">
-            <button id="run-btn" class="btn btn--primary btn--lg">
-                <span class="btn-icon">▶</span>
-                Run Code
-            </button>
-            <button id="clear-output-btn" class="btn btn--secondary">Clear Output</button>
-            <button id="clear-editor-btn" class="btn btn--secondary">Clear Editor</button>
-            <button id="download-btn" class="btn btn--outline">Download Code</button>
-            <div class="execution-status" id="execution-status">Ready</div>
-        </section>
-
-        <!-- Right Panel - Input/Output -->
+        <!-- Right Panel - Input/Output (30%) -->
         <section class="io-panel">
-            <!-- Input Area -->
+            <!-- Input Section (Top Half) -->
             <div class="input-section">
                 <div class="panel-header">
-                    <span class="panel-title">Input</span>
-                    <select id="sample-input" class="form-control">
-                        <option value="">Choose sample input...</option>
-                        <option value="1 2 3 4 5">Array Processing</option>
-                        <option value="Hello World">String Manipulation</option>
-                        <option value="10&#10;5 3 8 2 9">Multiple Lines</option>
-                    </select>
+                    <div class="panel-title-wrapper">
+                        <span class="panel-icon">📥</span>
+                        <span class="panel-title">Input</span>
+                    </div>
+                    <div class="input-controls">
+                        <input type="file" id="file-upload" class="file-input" accept=".txt,.json" />
+                        <button id="upload-btn" class="btn btn--outline btn--sm">📎 Upload</button>
+                        <select id="sample-input" class="form-control sample-selector">
+                            <option value="">Sample inputs...</option>
+                            <option value="1 2 3 4 5">Array Processing</option>
+                            <option value="Hello World">String Manipulation</option>
+                            <option value="10&#10;5 3 8 2 9">Multiple Lines</option>
+                        </select>
+                    </div>
                 </div>
-                <textarea 
-                    id="input-area" 
-                    class="form-control input-textarea" 
-                    placeholder="Enter input for your program...&#10;&#10;This simulates stdin input.&#10;Each line will be available to your Node.js code."
-                ></textarea>
+                <div class="input-content">
+                    <div class="file-info" id="file-info" style="display: none;">
+                        <span class="file-name" id="file-name"></span>
+                        <button id="clear-file" class="btn btn--sm btn--secondary">❌</button>
+                    </div>
+                    <textarea 
+                        id="input-area" 
+                        class="form-control input-textarea" 
+                        placeholder="💭 Enter input data for your program...&#10;&#10;You can:&#10;• Type or paste input directly&#10;• Upload a .txt or .json file&#10;• Select from sample inputs&#10;&#10;This data will be available to your Node.js code."
+                    ></textarea>
+                </div>
             </div>
 
-            <!-- Output Area -->
+            <!-- Output Section (Bottom Half) -->
             <div class="output-section">
                 <div class="panel-header">
-                    <span class="panel-title">Output</span>
+                    <div class="panel-title-wrapper">
+                        <span class="panel-icon">📤</span>
+                        <span class="panel-title">Output</span>
+                    </div>
                     <div class="output-controls">
-                        <span id="execution-time" class="execution-time"></span>
-                        <button id="clear-console-btn" class="btn btn--sm">Clear</button>
+                        <button id="copy-output-btn" class="btn btn--outline btn--sm">📋 Copy</button>
+                        <button id="download-output-btn" class="btn btn--outline btn--sm">💾 Save</button>
+                        <button id="clear-console-btn" class="btn btn--secondary btn--sm">🗑️ Clear</button>
                     </div>
                 </div>
                 <div id="output-console" class="output-console">
                     <div class="console-welcome">
                         <span class="console-prompt">$</span> Node.js Code Editor Console
-                        <div class="console-info">Ready to execute your code. Press Ctrl+Enter or click Run Code.</div>
+                        <div class="console-info">✨ Ready to execute your code. Press Ctrl+Enter or click Run Code.</div>
                     </div>
                 </div>
             </div>
