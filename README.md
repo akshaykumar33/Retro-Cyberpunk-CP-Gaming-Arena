@@ -62,7 +62,7 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 ## 📥 Get Started
 
 Clone the repository or use the hosted version:
-- [Live Demo](https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/effc204b340c58837f37c232bd343024/b6396571-3119-41f4-8813-1bab676e1dc9/index.html)
+- [Live Demo]([https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/effc204b340c58837f37c232bd343024/b6396571-3119-41f4-8813-1bab676e1dc9/index.html](https://retro-cyberpunk-cp-gaming-arena.netlify.app/))
 
 ***
 
