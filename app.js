@@ -350,7 +350,9 @@ if (typeof inputText === 'string' && inputText.includes(' ')) {
         
                 
                 // Create sandbox environment
-                const sandbox = this.createNodeJSSandbox(inputText);
+                const inputText = document.getElementById('input-area').value || '';
+                 const sandbox = this.createNodeJSSandbox(inputText);
+
                 
                 // Wrap code in try-catch for better error handling
                 const wrappedCode = `
