@@ -3,23 +3,27 @@
 import React from 'react';
 import CodeEditor from '../Editor/CodeEditor';
 import { useEditor } from '@/context/EditorContext';
-import { Terminal, Play, Trash2, Maximize2, Minimize2, Upload, Moon, Sun, Leaf } from 'lucide-react';
+import { Terminal, Play, Trash2, Maximize2, Minimize2, Upload, Moon, Sun, Leaf, ChevronDown, Palette } from 'lucide-react';
 
 const Workbench = () => {
     const { 
         output, appendOutput, clearOutput, 
         theme, setTheme, 
         mode, setMode,
-        autoRun
+        autoRun,
+        runtime, setRuntime
     } = useEditor();
 
     const handleRun = () => {
         appendOutput('info', '🚀 Running code...');
         // Simulation of run
         setTimeout(() => {
-            appendOutput('stdout', 'Analyzing input parameters...');
-            appendOutput('stdout', 'Calculation complete.');
-            appendOutput('success', 'Result: 42.00');
+            if (Math.random() > 0.5) {
+               appendOutput('stdout', 'Analyzing input parameters...');
+               appendOutput('success', 'Result: 42.00');
+            } else {
+               appendOutput('stderr', 'Error: Invalid input signature');
+            }
         }, 500);
     };
 
@@ -33,7 +37,7 @@ const Workbench = () => {
         <div className={`flex h-screen w-full flex-col overflow-hidden text-[var(--color-foreground)] transition-colors duration-500`} data-theme={theme}>
             {/* Header */}
             {mode === 'standard' && (
-                <header className="flex h-16 shrink-0 items-center justify-between border-b border-[var(--border-color)] bg-[var(--bg-glass)] px-4 backdrop-blur-md md:px-6">
+                <header className="relative z-50 flex h-16 shrink-0 items-center justify-between border-b border-[var(--border-color)] bg-[var(--bg-glass)] px-4 backdrop-blur-md md:px-6">
                     <div className="flex items-center gap-3">
                         <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-opacity-20 transition-colors ${runtime === 'node' ? 'bg-green-500 text-green-400' : 'bg-yellow-500 text-yellow-400'}`}>
                             <Terminal size={18} />
@@ -67,16 +71,16 @@ const Workbench = () => {
                        <div className="relative">
                             <button 
                                 onClick={() => setIsThemeOpen(!isThemeOpen)}
-                                className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-[var(--text-secondary)] hover:bg-white/5 hover:text-[var(--text-primary)]"
+                                className={`flex h-9 w-9 items-center justify-center rounded-md transition-colors ${isThemeOpen ? 'bg-white/10 text-white' : 'text-[var(--text-secondary)] hover:bg-white/5 hover:text-[var(--text-primary)]'}`}
+                                title="Change Theme"
                             >
-                                <span>Theme</span>
-                                <ChevronDown size={14} />
+                                <Palette size={18} />
                             </button>
 
                             {isThemeOpen && (
                                 <>
                                     <div className="fixed inset-0 z-40" onClick={() => setIsThemeOpen(false)} />
-                                    <div className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] shadow-xl backdrop-blur-xl">
+                                    <div className="absolute right-0 top-full z-[100] mt-2 w-48 overflow-hidden rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] shadow-xl backdrop-blur-xl">
                                         <div className="p-1">
                                             {[
                                                 { id: 'professional', label: 'Professional', icon: Moon, color: 'text-zinc-400' },
