@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+:root {
+  /* Default Theme (Professional Modern) */
+  --bg-primary: #09090b;
+  /* Zinc 950 */
+  --bg-secondary: #18181b;
+  /* Zinc 900 */
+  --bg-glass: rgba(24, 24, 27, 0.7);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --accent-primary: #3b82f6;
+  /* Blue 500 */
+  --accent-glow: rgba(59, 130, 246, 0.5);
+  --text-primary: #f4f4f5;
+  /* Zinc 100 */
+  --text-secondary: #a1a1aa;
+  /* Zinc 400 */
+
+  --glass-backdrop: blur(16px);
+  --nav-height: 64px;
+}
+
+[data-theme="cyberpunk"] {
+  --bg-primary: #050510;
+  --bg-secondary: #0a0a1f;
+  --bg-glass: rgba(10, 10, 31, 0.6);
+  --border-color: rgba(0, 243, 255, 0.3);
+  --accent-primary: #00f3ff;
+  --accent-glow: rgba(0, 243, 255, 0.6);
+  --text-primary: #ffffff;
+  --text-secondary: #00f3ff;
+  --glass-backdrop: blur(8px);
+}
+
+[data-theme="nature"] {
+  --bg-primary: #051a05;
+  --bg-secondary: #0d2e0d;
+  --bg-glass: rgba(13, 46, 13, 0.7);
+  --border-color: rgba(74, 222, 128, 0.2);
+  --accent-primary: #4ade80;
+  --accent-glow: rgba(74, 222, 128, 0.4);
+  --text-primary: #f0fdf4;
+  --text-secondary: #86efac;
+}
+
+[data-theme="synthwave"] {
+  --bg-primary: #120024;
+  --bg-secondary: #240046;
+  --bg-glass: rgba(36, 0, 70, 0.7);
+  --border-color: rgba(255, 0, 255, 0.3);
+  --accent-primary: #ff00ff;
+  /* Magenta */
+  --accent-glow: rgba(255, 0, 255, 0.6);
+  --text-primary: #ffffff;
+  --text-secondary: #e0aaff;
+  --glass-backdrop: blur(12px) contrast(1.1);
+}
+
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  /* Slate 50 */
+  --bg-secondary: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --accent-primary: #0f172a;
+  /* Slate 900 */
+  --accent-glow: rgba(15, 23, 42, 0.1);
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  /* Slate 500 */
+  --glass-backdrop: blur(20px);
+}
+
+@theme inline {
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow: hidden;
+  /* App like feel */
+  transition: background-color 0.5s ease;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-enter {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
