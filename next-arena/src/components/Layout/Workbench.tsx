@@ -4,9 +4,12 @@ import React from 'react';
 import CodeEditor from '../Editor/CodeEditor';
 import { useEditor } from '@/context/EditorContext';
 import { Terminal, Play, Trash2, Maximize2, Minimize2, Upload, Moon, Sun, Leaf, ChevronDown, Palette } from 'lucide-react';
+import { runCode } from '@/utils/codeRunner';
 
 const Workbench = () => {
     const { 
+        code, // Get code from context
+        input, setInput, // Get input state
         output, appendOutput, clearOutput, 
         theme, setTheme, 
         mode, setMode,
@@ -14,17 +17,24 @@ const Workbench = () => {
         runtime, setRuntime
     } = useEditor();
 
-    const handleRun = () => {
+    const handleRun = async () => {
         appendOutput('info', '🚀 Running code...');
-        // Simulation of run
-        setTimeout(() => {
-            if (Math.random() > 0.5) {
-               appendOutput('stdout', 'Analyzing input parameters...');
-               appendOutput('success', 'Result: 42.00');
-            } else {
-               appendOutput('stderr', 'Error: Invalid input signature');
-            }
-        }, 500);
+        
+        try {
+            // Add a small delay to allow UI to update
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const result = await runCode(code, input);
+            
+            // Process logs
+            result.logs.forEach(log => {
+                appendOutput(log.type, log.message);
+            });
+            
+            appendOutput('info', '✨ Execution complete');
+        } catch (error) {
+            appendOutput('stderr', `System Error: ${error}`);
+        }
     };
 
     const [isThemeOpen, setIsThemeOpen] = React.useState(false);
@@ -152,13 +162,13 @@ const Workbench = () => {
                                     </div>
                                 )}
                                 {output.map((log, i) => (
-                                    <div key={i} className="mb-2 border-l-2 border-transparent pl-2"
+                                    <div key={i} className="mb-2 flex items-start border-l-2 border-transparent pl-2"
                                          style={{ 
                                              borderColor: log.type === 'stderr' ? '#ef4444' : log.type === 'success' ? '#22c55e' : 'transparent',
                                              color: log.type === 'stderr' ? '#fca5a5' : log.type === 'success' ? '#86efac' : 'inherit'
                                          }}>
-                                        <span className="mr-2 opacity-30">[{log.timestamp}]</span>
-                                        <span>{log.message}</span>
+                                        <span className="mr-2 shrink-0 opacity-30">[{log.timestamp}]</span>
+                                        <span className="whitespace-pre-wrap break-all font-mono">{log.message}</span>
                                     </div>
                                 ))}
                             </div>
@@ -170,10 +180,37 @@ const Workbench = () => {
                                 <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Input Data</span>
                                 <label className="cursor-pointer text-[var(--accent-primary)] hover:text-white">
                                     <Upload size={14} />
-                                    <input type="file" className="hidden" />
+                                    <input 
+                                        type="file" 
+                                        className="hidden" 
+                                        accept=".txt,.in,.dat"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+                                            
+                                            // Reset input so same file can be selected again
+                                            e.target.value = '';
+
+                                            appendOutput('info', `Reading file: ${file.name}...`);
+                                            
+                                            const reader = new FileReader();
+                                            reader.onload = (event) => {
+                                                if (typeof event.target?.result === 'string') {
+                                                    setInput(event.target.result);
+                                                    appendOutput('success', `File loaded successfully (${event.target.result.length} bytes)`);
+                                                }
+                                            };
+                                            reader.onerror = () => {
+                                                appendOutput('stderr', 'Error reading file');
+                                            };
+                                            reader.readAsText(file);
+                                        }}
+                                    />
                                 </label>
                             </div>
                             <textarea 
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
                                 className="h-full w-full resize-none bg-transparent text-sm font-mono text-[var(--text-primary)] outline-none placeholder:text-white/20"
                                 placeholder="Enter input for stdin..."
                             />
